@@ -35,11 +35,10 @@ func main() {
 
 	for scanner.Scan() {
 		var line string = string(scanner.Text())
+		var newline string = ""
 
+		var numbertype int = 0
 		var changed bool = true
-
-		//fmt.Printf("%s\n", line)
-
 		for changed {
 
 			var mini int = 999
@@ -50,21 +49,33 @@ func main() {
 				if i < mini && i > -1 {
 					mini = i
 					minmatching = key
+					numbertype = 1
+				}
+			}
+
+			for _, value := range replacements {
+				i := strings.Index(line, value)
+				if i < mini && i > -1 {
+					mini = i
+					minmatching = value
+					numbertype = 2
 				}
 			}
 
 			if mini == 999 {
 				changed = false
 			} else {
-				line = strings.Replace(line, minmatching, replacements[minmatching], 1)
+				if numbertype == 1 {
+					minmatching = replacements[minmatching]
+				}
+				line = line[mini+1:]
+				newline = newline + minmatching
 			}
 		}
 
-		//fmt.Printf("%s\n\n\n", line)
-
 		var found_first, found_last bool = false, false
 		var first_dig, last_dig string = "", ""
-		for _, chr := range line {
+		for _, chr := range newline {
 
 			if unicode.IsDigit(chr) {
 				if !found_first {
@@ -90,7 +101,6 @@ func main() {
 		cal_val, err := strconv.Atoi(cal_string)
 		if err != nil {
 			fmt.Printf("Error converting to int: %s\n", err)
-			fmt.Printf("%s, %s, %t, %t, '%s'\n", first_dig, last_dig, found_first, found_last, line)
 			os.Exit(-2)
 		}
 
